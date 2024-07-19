@@ -15,7 +15,7 @@ local function get_token()
     for token in string.gmatch(trim_line, "%S+") do
         local trim_token = util.trim(token)
         char_idx = char_idx + string.len(trim_token)
-        if char_idx + token_idx + 1>= c_col then
+        if char_idx + token_idx + 1 >= c_col then
             result = token
             break
         end
@@ -49,21 +49,21 @@ local function render_options(token, buf)
             ns = 1e9
         },
         ms = {
-            s = 1/1000,
+            s = 1 / 1000,
             ms = 1,
             us = 1000,
             ns = 1e6
         },
         us = {
-            s = 1/1e6,
-            ms = 1/1000,
+            s = 1 / 1e6,
+            ms = 1 / 1000,
             us = 1,
             ns = 1000
         },
         ns = {
-            s = 1/1e9,
-            ms = 1/1e6,
-            us = 1/1000,
+            s = 1 / 1e9,
+            ms = 1 / 1e6,
+            us = 1 / 1000,
             ns = 1
         }
     }
@@ -84,23 +84,22 @@ local function render_options(token, buf)
             unit_s = c
         end
         local formatted_entry = string.format("%.f", c)
-        local line_entry = unit..": "..formatted_entry
-        api.nvim_buf_set_lines(buf, i, i + 1, false, {line_entry})
+        local line_entry = unit .. ": " .. formatted_entry
+        api.nvim_buf_set_lines(buf, i, i + 1, false, { line_entry })
         i = i + 1
     end
 
-    api.nvim_buf_set_lines(buf, i, i+1, false, {ui.gen_divider()})
+    api.nvim_buf_set_lines(buf, i, i + 1, false, { ui.gen_divider() })
     i = i + 1
 
-    for k,v in pairs(timezones) do
-        local date_string = os.date("!%a %b %d, %I:%M %p, %Y", unit_s + (v * 60 * 60))
-        local line_entry = k..": "..date_string
-        api.nvim_buf_set_lines(buf, i, i+1, false, {line_entry})
+    for k, v in pairs(timezones) do
+        local date_string = os.date("%Y-%m-%d", unit_s + (v * 60 * 60))
+        local line_entry = k .. ": " .. date_string
+        api.nvim_buf_set_lines(buf, i, i + 1, false, { line_entry })
         i = i + 1
     end
 
     api.nvim_buf_set_option(buf, 'modifiable', false)
-
 end
 
 local function insert_selection()
@@ -118,12 +117,12 @@ local function insert_selection()
     end
 
     if (count > 3) then
-        insert_value = '"'..util.trim(string.sub(api.nvim_get_current_line(), split_point+1))..'"'
+        insert_value = '"' .. util.trim(string.sub(api.nvim_get_current_line(), split_point + 1)) .. '"'
     end
 
-    local new_line = string.sub(line, 1, anchor-1)..insert_value..string.sub(line, active, string.len(line))
+    local new_line = string.sub(line, 1, anchor - 1) .. insert_value .. string.sub(line, active, string.len(line))
     local ts = 1658669410000000000
-    api.nvim_buf_set_lines(parent_buf, c_row-1, c_row, false, {new_line})
+    api.nvim_buf_set_lines(parent_buf, c_row - 1, c_row, false, { new_line })
     ui.close_window()
 end
 
@@ -136,7 +135,7 @@ local function set_mappings(buf)
     }
 
     for k, v in pairs(mappings) do
-        api.nvim_buf_set_keymap(buf, 'n', k, ':lua require"eswpoch".'..v..'<cr>',{
+        api.nvim_buf_set_keymap(buf, 'n', k, ':lua require"eswpoch".' .. v .. '<cr>', {
             nowait = true, noremap = true, silent = true
         })
     end
@@ -145,17 +144,17 @@ local function set_mappings(buf)
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'n', 'o', 'p', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ':', 'h', 'l'
     }
 
-    for k,v in ipairs(other_chars) do
+    for k, v in ipairs(other_chars) do
         api.nvim_buf_set_keymap(buf, 'n', v, '', { nowait = true, noremap = true, silent = true })
         api.nvim_buf_set_keymap(buf, 'n', v:upper(), '', { nowait = true, noremap = true, silent = true })
-        api.nvim_buf_set_keymap(buf, 'n',  '<c-'..v..'>', '', { nowait = true, noremap = true, silent = true })
+        api.nvim_buf_set_keymap(buf, 'n', '<c-' .. v .. '>', '', { nowait = true, noremap = true, silent = true })
     end
 end
 
 local function eswpoch()
     parent_buf = api.nvim_win_get_buf(0)
     c_row, c_col = unpack(api.nvim_win_get_cursor(0))
-    line = api.nvim_buf_get_lines(0, c_row-1, c_row, false)[1]
+    line = api.nvim_buf_get_lines(0, c_row - 1, c_row, false)[1]
     local token = get_token()
     local buf = ui.open_window()
     render_options(token, buf)
